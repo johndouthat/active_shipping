@@ -10,12 +10,14 @@ module ActiveMerchant
       
       RESOURCES = {
         :rates => '/ups.app/xml/Rate',
-        :track => '/ups.app/xml/Track'
+        :track => '/ups.app/xml/Track',
+        :time_in_transit => '/ups.app/xml/TimeInTransit',
       }
       
       USE_SSL = {
         :rates => true,
-        :track => true
+        :track => true,
+        :time_in_transit => true,
       }
       
       def requirements
@@ -59,3 +61,4 @@ end
 
 require 'active_shipping/shipping/carriers/ups/rate_and_service_selection'
 require 'active_shipping/shipping/carriers/ups/tracking'
+require 'active_shipping/shipping/carriers/ups/time_in_transit'

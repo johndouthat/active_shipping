@@ -306,3 +306,47 @@
   phone: 
   postal_code: "94043"
   province: CA
+:prague_example: !ruby/object:ActiveMerchant::Shipping::Location 
+  address1: 
+  address2: 
+  address3: 
+  address_type: commercial
+  city: PRAGUE
+  country: !ruby/object:ActiveMerchant::Country 
+    codes: 
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :alpha2
+      value: CZ
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :alpha3
+      value: CZE
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :numeric
+      value: "203"
+    name: Czech Republic
+  fax: 
+  phone: 
+  postal_code: "18600"
+  province: PRAGUE
+:roswell_example: !ruby/object:ActiveMerchant::Shipping::Location 
+  address1: 
+  address2: 
+  address3: 
+  address_type: commercial
+  city: Roswell
+  country: !ruby/object:ActiveMerchant::Country 
+    codes: 
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :alpha2
+      value: US
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :alpha3
+      value: USA
+    - !ruby/object:ActiveMerchant::CountryCode 
+      format: :numeric
+      value: "840"
+    name: United States
+  fax: 
+  phone: 
+  postal_code: "30076"
+  province: GA

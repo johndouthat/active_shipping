@@ -12,6 +12,7 @@ class UPSTest < Test::Unit::TestCase
                                 :password => 'password'
                               )
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
+    @tnt_response = xml_fixture('ups/example_tnt_response')
   end
   
   def test_initialize_options_requirements
@@ -85,5 +86,30 @@ class UPSTest < Test::Unit::TestCase
     response = @carrier.find_rates( @locations[:beverly_hills],
                                     @locations[:real_home_as_residential],
                                     @packages.values_at(:chocolate_stuff))
+  end
+  
+  def test_tnt_response_parsing
+    UPS.any_instance.expects(:commit).returns(@tnt_response)
+    response = @carrier.find_time_in_transit(@locations[:prague_example], @locations[:roswell_example], Date.today, 2.0, nil, 500, false, 5)
+    
+    assert_equal response.disclaimer, "All services are guaranteed if shipment is paid for in full by a payee in the United States. Services listed as guaranteed are backed by a money-back guarantee for transportation charges only. See Terms and Conditions in the Service Guide for details. Certain commodities and high value shipments may require additional transit time for customs clearance."
+    
+    expected = [
+      {:code => '21', :delivery_at => Time.parse('2007-11-24 09:30:00')},
+      {:code => '01', :delivery_at => Time.parse('2007-11-24 12:00:00')}
+      # TODO? ....
+    ]
+    
+    assert_equal response.services.size, 6
+    assert_equal response.origin_candidates.size, 0
+    assert_equal response.destination_candidates.size, 0
+    
+    0.upto(expected.size-1) do |i|
+      service = response.services[i]
+      assert_equal service.service_code, expected[i][:code]
+      assert_equal service.delivery_at, expected[i][:delivery_at]
+      assert_equal service.guaranteed?, true
+    end
+    
   end
 end
