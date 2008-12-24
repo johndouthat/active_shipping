@@ -15,7 +15,6 @@ module ActiveMerchant
       # shipment_weight_in_lbs - Float - The weight of the shipment in pounds
       # monetary_value - Moneyish [2] - The declared value of the shipment
       # maximum_list_size - Fixnum between 1 and 50, default: 35 - the maximum number of candidate locations you wish to receive if you provide an invalid origin or destination
-      #   Currently, the data isn't provided in the result, so providing this number is moot
       # 
       # Should the user provide an invalid origin or destination, a candidate list of possible origins or destinations 
       # will be returned in one or both of response.origin_candidates, response.destination_candidates. 
@@ -27,6 +26,7 @@ module ActiveMerchant
       # http://www.ups.com/e_comm_access/laServ?loc=en_US&CURRENT_PAGE=WELCOME&OPTION=TOOL_DOC&TOOL_ID=TimeNTransitXML
       # [2] Money(ish) (i.e. responds to to_money) from the Money gem
       def find_time_in_transit(origin, destination, pickup_date, shipment_weight_in_lbs = nil, total_packages = nil, monetary_value = nil, documents_only = false, maximum_list_size = nil, options={})
+        #TODO: this argument list is really hairy... clean it up
         options = @options.merge(options)
         access_request = build_access_request
         time_request = build_time_in_transit_request(origin, destination, pickup_date, shipment_weight_in_lbs, total_packages, monetary_value, documents_only, maximum_list_size)
@@ -130,10 +130,11 @@ module ActiveMerchant
             x_arrival = x_summary['EstimatedArrival']
             s_date = x_arrival['Date']
             s_time = x_arrival['Time']
+            days = x_arrival['BusinessTransitDays'].to_i
 
-            time = Time.parse("#{s_date} #{s_time}")
+            time = Time.parse("#{s_date} #{s_time}") #TODO: take time-zones into account?
 
-            result.services << TimeInTransitService.new(service_code, service_name, time, guaranteed, description)
+            result.services << TimeInTransitService.new(service_code, service_name, time, days, guaranteed, description)
           end 
         end
         
@@ -231,10 +232,10 @@ module ActiveMerchant
         '28' => '65', # UPS Worldwide Saver, UPS Express Saver  #TODO: not sure about this mapping
       }
       
-      attr_reader :service_code, :service_name, :delivery_at, :guaranteed, :description
-      def initialize(service_code, service_name, delivery_at, guaranteed, description)
-        @service_code, @service_name, @delivery_at, @guaranteed, @description = 
-          service_code, service_name, delivery_at, guaranteed, description
+      attr_reader :service_code, :service_name, :delivery_at, :business_days, :guaranteed, :description
+      def initialize(service_code, service_name, delivery_at, business_days, guaranteed, description)
+        @service_code, @service_name, @delivery_at, @business_days, @guaranteed, @description = 
+          service_code, service_name, delivery_at, business_days, guaranteed, description
       end
       alias_method :guaranteed?, :guaranteed
       
