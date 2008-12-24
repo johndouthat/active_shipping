@@ -1,0 +1,41 @@
+<?xml version="1.0"?>
+<AddressValidationResponse>
+   <Response>
+      <TransactionReference>
+         <XpciVersion>1.0001</XpciVersion>
+      </TransactionReference>
+      <!--Multiple Candidate Matches-->
+      <ResponseStatusCode>1</ResponseStatusCode>
+      <ResponseStatusDescription>Success</ResponseStatusDescription>
+   </Response>
+   <AddressValidationResult>
+      <Rank>1</Rank>
+      <Quality>0.9975000023841858</Quality>
+      <Address>
+         <City>TIMONIUM</City>
+         <StateProvinceCode>MD</StateProvinceCode>
+      </Address>
+      <PostalCodeLowEnd>21093</PostalCodeLowEnd>
+      <PostalCodeHighEnd>21094</PostalCodeHighEnd>
+   </AddressValidationResult>
+   <AddressValidationResult>
+      <Rank>2</Rank>
+      <Quality>0.8299999833106995</Quality>
+      <Address>
+         <City>LUTHERVILLE TIMONIUM</City>
+         <StateProvinceCode>MD</StateProvinceCode>
+      </Address>
+      <PostalCodeLowEnd>21093</PostalCodeLowEnd>
+      <PostalCodeHighEnd>21094</PostalCodeHighEnd>
+   </AddressValidationResult>
+   <AddressValidationResult>
+      <Rank>3</Rank>
+      <Quality>0.8299999833106995</Quality>
+      <Address>
+         <City>LUTHERVILLE</City>
+         <StateProvinceCode>MD</StateProvinceCode>
+      </Address>
+      <PostalCodeLowEnd>21093</PostalCodeLowEnd>
+      <PostalCodeHighEnd>21094</PostalCodeHighEnd>
+   </AddressValidationResult>
+</AddressValidationResponse>

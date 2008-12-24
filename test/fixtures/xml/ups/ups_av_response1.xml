@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<AddressValidationResponse>
+   <Response>
+      <TransactionReference>
+         <XpciVersion>1.0001</XpciVersion>
+      </TransactionReference>
+      <!--Single Match-->
+      <ResponseStatusCode>1</ResponseStatusCode>
+      <ResponseStatusDescription>Success</ResponseStatusDescription>
+   </Response>
+   <AddressValidationResult>
+      <Rank>1</Rank>
+      <Quality>1.0</Quality>
+      <Address>
+         <City>TIMONIUM</City>
+         <StateProvinceCode>MD</StateProvinceCode>
+      </Address>
+      <PostalCodeLowEnd>21093</PostalCodeLowEnd>
+      <PostalCodeHighEnd>21094</PostalCodeHighEnd>
+   </AddressValidationResult>
+</AddressValidationResponse>

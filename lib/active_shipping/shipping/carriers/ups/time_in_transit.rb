@@ -66,10 +66,6 @@ module ActiveMerchant
         xml_request.to_xml
       end
       
-      def xml(*args)
-        XmlNode.new(*args) { |x| yield(x) if block_given? }
-      end
-      
       def money(container_name, money)
         xml(container_name) { |container|
           container << xml('CurrencyCode', money.currency)
@@ -115,7 +111,7 @@ module ActiveMerchant
         result = TimeInTransitResult.new(x_transit_response['Disclaimer'])
         
         if x_service_summary = x_transit_response['ServiceSummary']
-          for x_summary in Array(x_service_summary)
+          for x_summary in Array(x_service_summary) #TODO: test this
             x_service = x_summary['Service']
             service_code = x_service['Code']
             service_name = x_service['Description']
@@ -151,7 +147,7 @@ module ActiveMerchant
       
       def build_candidate_list(x_list)
         result = []
-        for x_candidate in Array(x_list['Candidate'])
+        for x_candidate in Array(x_list['Candidate']) #TODO: test this
           x_artifact = x_candidate['AddressArtifactFormat']
           result << AddressCandidate.new(
             x_artifact['PoliticalDivision1'],

@@ -165,4 +165,13 @@ class UPSTest < Test::Unit::TestCase
     end
   end
   
+  def test_address_validation
+    result = nil
+    assert_nothing_raised do
+      result = @carrier.validate_address(Location.new(:state => 'MD', :zip => '21093'))
+    end
+    assert_equal result.size, 4
+    assert_equal result.map(&:city), ["LUTHERVILLE TIMONIUM", "LUTHERVILLE", "LUTHVLE TIMON", "TIMONIUM"]
+  end
+  
 end

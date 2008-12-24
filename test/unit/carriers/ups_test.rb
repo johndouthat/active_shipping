@@ -112,4 +112,37 @@ class UPSTest < Test::Unit::TestCase
     end
     
   end
+  
+  def test_av_response_parsing1
+    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response1'))
+    result = @carrier.validate_address(Location.new(:city => 'TIMONIUM', :state => 'MD', :zip => '21093'))
+    
+    assert_equal result.size, 1
+    r = result.first
+    assert_equal r.city, 'TIMONIUM'
+    assert_equal r.state, 'MD'
+    assert_equal r.zip_low, '21093'
+    assert_equal r.zip_high, '21094'
+    assert_equal r.rank, 1
+    assert_equal r.quality, 1.0
+  end
+  
+  def test_av_response_parsing2
+    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response2'))
+    result = @carrier.validate_address(Location.new(:state => 'MD', :zip => '21093'))
+    
+    assert_equal result.size, 3
+    r = result.first
+    assert_equal r.city, 'TIMONIUM'
+    assert_equal r.state, 'MD'
+    assert_equal r.zip_low, '21093'
+    assert_equal r.zip_high, '21094'
+    assert_equal r.rank, 1
+    assert_equal r.quality, 0.9975000023841858
+    assert_equal result[1].city, 'LUTHERVILLE TIMONIUM'
+    assert_equal result[2].city, 'LUTHERVILLE'
+    #TODO the rest of the second two?
+  end
+  
+  
 end

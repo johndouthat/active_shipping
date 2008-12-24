@@ -12,12 +12,14 @@ module ActiveMerchant
         :rates => '/ups.app/xml/Rate',
         :track => '/ups.app/xml/Track',
         :time_in_transit => '/ups.app/xml/TimeInTransit',
+        :address_validation => '/ups.app/xml/AV',
       }
       
       USE_SSL = {
         :rates => true,
         :track => true,
         :time_in_transit => true,
+        :address_validation => true,
       }
       
       def requirements
@@ -55,6 +57,10 @@ module ActiveMerchant
         response.body
       end
       
+      def xml(*args)
+        XmlNode.new(*args) { |x| yield(x) if block_given? }
+      end
+      
     end
   end
 end
@@ -62,3 +68,4 @@ end
 require 'active_shipping/shipping/carriers/ups/rate_and_service_selection'
 require 'active_shipping/shipping/carriers/ups/tracking'
 require 'active_shipping/shipping/carriers/ups/time_in_transit'
+require 'active_shipping/shipping/carriers/ups/address_validation'
