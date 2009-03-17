@@ -1,6 +1,3 @@
-require 'rubygems'
-require 'active_support'
-
 # Determine if Hash.from_xml is broken
 mangles_tag_names = Hash.from_xml('<FooBar/>').has_key?('foo_bar')
 
