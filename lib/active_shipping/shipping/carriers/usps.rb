@@ -182,7 +182,7 @@ module ActiveMerchant
         request = "%3CCarrierPickupAvailabilityRequest%20USERID=%22#{@options[:login]}%22%3E%20%0A%3CFirmName%3EABC%20Corp.%3C/FirmName%3E%20%0A%3CSuiteOrApt%3ESuite%20777%3C/SuiteOrApt%3E%20%0A%3CAddress2%3E1390%20Market%20Street%3C/Address2%3E%20%0A%3CUrbanization%3E%3C/Urbanization%3E%20%0A%3CCity%3EHouston%3C/City%3E%20%0A%3CState%3ETX%3C/State%3E%20%0A%3CZIP5%3E77058%3C/ZIP5%3E%20%0A%3CZIP4%3E1234%3C/ZIP4%3E%20%0A%3C/CarrierPickupAvailabilityRequest%3E%0A"
         expected_hash = {"CarrierPickupAvailabilityResponse"=>{"City"=>"HOUSTON", "Address2"=>"1390 Market Street", "FirmName"=>"ABC Corp.", "State"=>"TX", "Date"=>"3/1/2004", "DayOfWeek"=>"Monday", "Urbanization"=>nil, "ZIP4"=>"1234", "ZIP5"=>"77058", "CarrierRoute"=>"C", "SuiteOrApt"=>"Suite 777"}}
         xml = commit(:test, request, true)
-        response_hash = Hash.from_xml(xml)
+        response_hash = ActiveMerchant.parse_xml(xml)
         response_hash == expected_hash
       end
       
@@ -256,7 +256,7 @@ module ActiveMerchant
         success = true
         message = ''
         rate_hash = {}
-        response_hash = Hash.from_xml(response)
+        response_hash = ActiveMerchant.parse_xml(response)
         root_node_name = response_hash.keys.first
         root_node = response_hash[root_node_name]
         

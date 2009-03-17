@@ -24,7 +24,7 @@ module ActiveMerchant
       end
       
       def parse_tracking_response(response, options={})
-        xml_hash = Hash.from_xml(response)['TrackResponse']
+        xml_hash = ActiveMerchant.parse_xml(response)['TrackResponse']
         success = response_hash_success?(xml_hash)
         message = response_hash_message(xml_hash)
         

@@ -150,8 +150,8 @@ module ActiveMerchant
       
       def parse_rate_response(origin, destination, packages, response, options={})
         rates = []
-        
-        xml_hash = Hash.from_xml(response)['RatingServiceSelectionResponse']
+
+        xml_hash = ActiveMerchant.parse_xml(response)['RatingServiceSelectionResponse']
         success = response_hash_success?(xml_hash)
         message = response_hash_message(xml_hash)
         

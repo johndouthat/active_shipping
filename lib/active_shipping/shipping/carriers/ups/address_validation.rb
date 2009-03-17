@@ -67,7 +67,7 @@ module ActiveMerchant
       end
       
       def parse_av_response(response)
-        xml_hash = Hash.from_xml(response)['AddressValidationResponse']
+        xml_hash = ActiveMerchant.parse_xml(response)['AddressValidationResponse']
         success = response_hash_success?(xml_hash)
         
         unless success

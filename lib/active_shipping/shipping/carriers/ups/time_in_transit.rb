@@ -96,7 +96,7 @@ module ActiveMerchant
       
       # Summary of document format: Pages 28-30 of TNT_DeveloperGuide_12_20_07.pdf
       def parse_time_in_transit_response(response)
-        xml_hash = Hash.from_xml(response)['TimeInTransitResponse']
+        xml_hash = ActiveMerchant.parse_xml(response)['TimeInTransitResponse']
         success = response_hash_success?(xml_hash)
         
         unless success
