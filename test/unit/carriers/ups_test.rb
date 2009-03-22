@@ -94,7 +94,7 @@ class UPSTest < Test::Unit::TestCase
   end
 
   def test_tnt_response_parsing
-    UPS.any_instance.expects(:commit).returns(@tnt_response)
+    @carrier.expects(:commit).returns(@tnt_response)
     response = @carrier.find_time_in_transit(@locations[:prague_example], @locations[:roswell_example], Date.today, 2.0, nil, 500, false, 5)
     
     assert_equal response.disclaimer, "All services are guaranteed if shipment is paid for in full by a payee in the United States. Services listed as guaranteed are backed by a money-back guarantee for transportation charges only. See Terms and Conditions in the Service Guide for details. Certain commodities and high value shipments may require additional transit time for customs clearance."
@@ -119,7 +119,7 @@ class UPSTest < Test::Unit::TestCase
   end
   
   def test_av_response_parsing1
-    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response1'))
+    @carrier.expects(:commit).returns(xml_fixture('ups/ups_av_response1'))
     result = @carrier.validate_address(Location.new(:city => 'TIMONIUM', :state => 'MD', :zip => '21093'))
     
     assert_equal result.size, 1
@@ -133,7 +133,7 @@ class UPSTest < Test::Unit::TestCase
   end
   
   def test_av_response_parsing2
-    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response2'))
+    @carrier.expects(:commit).returns(xml_fixture('ups/ups_av_response2'))
     result = @carrier.validate_address(Location.new(:state => 'MD', :zip => '21093'))
     
     assert_equal result.size, 3
