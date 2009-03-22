@@ -11,6 +11,7 @@ class UPSTest < Test::Unit::TestCase
                    :password => 'password'
                  )
     @tracking_response = xml_fixture('ups/shipment_from_tiger_direct')
+    @tnt_response = xml_fixture('ups/example_tnt_response')
   end
   
   def test_initialize_options_requirements
@@ -90,5 +91,61 @@ class UPSTest < Test::Unit::TestCase
     assert Package.new(150 * 16, [5,5,5], :units => :imperial).mass == @carrier.maximum_weight
     assert Package.new((150 * 16) + 0.01, [5,5,5], :units => :imperial).mass > @carrier.maximum_weight
     assert Package.new((150 * 16) - 0.01, [5,5,5], :units => :imperial).mass < @carrier.maximum_weight
+  end
+
+  def test_tnt_response_parsing
+    UPS.any_instance.expects(:commit).returns(@tnt_response)
+    response = @carrier.find_time_in_transit(@locations[:prague_example], @locations[:roswell_example], Date.today, 2.0, nil, 500, false, 5)
+    
+    assert_equal response.disclaimer, "All services are guaranteed if shipment is paid for in full by a payee in the United States. Services listed as guaranteed are backed by a money-back guarantee for transportation charges only. See Terms and Conditions in the Service Guide for details. Certain commodities and high value shipments may require additional transit time for customs clearance."
+    
+    expected = [
+      {:code => '21', :delivery_at => Time.parse('2007-11-24 09:30:00')},
+      {:code => '01', :delivery_at => Time.parse('2007-11-24 12:00:00')}
+      # TODO? ....
+    ]
+    
+    assert_equal response.services.size, 6
+    assert_equal response.origin_candidates.size, 0
+    assert_equal response.destination_candidates.size, 0
+    
+    0.upto(expected.size-1) do |i|
+      service = response.services[i]
+      assert_equal service.service_code, expected[i][:code]
+      assert_equal service.delivery_at, expected[i][:delivery_at]
+      assert_equal service.guaranteed?, true
+    end
+    
+  end
+  
+  def test_av_response_parsing1
+    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response1'))
+    result = @carrier.validate_address(Location.new(:city => 'TIMONIUM', :state => 'MD', :zip => '21093'))
+    
+    assert_equal result.size, 1
+    r = result.first
+    assert_equal r.city, 'TIMONIUM'
+    assert_equal r.state, 'MD'
+    assert_equal r.zip_low, '21093'
+    assert_equal r.zip_high, '21094'
+    assert_equal r.rank, 1
+    assert_equal r.quality, 1.0
+  end
+  
+  def test_av_response_parsing2
+    UPS.any_instance.expects(:commit).returns(xml_fixture('ups/ups_av_response2'))
+    result = @carrier.validate_address(Location.new(:state => 'MD', :zip => '21093'))
+    
+    assert_equal result.size, 3
+    r = result.first
+    assert_equal r.city, 'TIMONIUM'
+    assert_equal r.state, 'MD'
+    assert_equal r.zip_low, '21093'
+    assert_equal r.zip_high, '21094'
+    assert_equal r.rank, 1
+    assert_equal r.quality, 0.9975000023841858
+    assert_equal result[1].city, 'LUTHERVILLE TIMONIUM'
+    assert_equal result[2].city, 'LUTHERVILLE'
+    #TODO the rest of the second two?
   end
 end

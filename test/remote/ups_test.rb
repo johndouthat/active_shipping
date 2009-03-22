@@ -172,4 +172,23 @@ class UPSTest < Test::Unit::TestCase
     assert_not_equal prices_of.call(:fake_google_as_commercial), prices_of.call(:fake_google_as_residential)
     assert prices_of.call(:fake_home_as_residential).first > prices_of.call(:fake_home_as_commercial).first
   end
+  
+  def test_time_in_transit
+    # TODO: move into fixtures?
+    origin = Location.new(:country => 'US', :zip => '70817', :address_type => 'commercial')
+    destination = Location.new(:country => 'US', :zip => '90210', :address_type => 'residential')
+    assert_nothing_raised do
+      result = @carrier.find_time_in_transit(origin, destination, Date.today, 20, 1, 300, false, 35)
+    end
+  end
+  
+  def test_address_validation
+    result = nil
+    assert_nothing_raised do
+      result = @carrier.validate_address(Location.new(:state => 'MD', :zip => '21093'))
+    end
+    assert_equal result.size, 4
+    assert_equal result.map(&:city), ["LUTHERVILLE TIMONIUM", "LUTHERVILLE", "LUTHVLE TIMON", "TIMONIUM"]
+  end
+  
 end

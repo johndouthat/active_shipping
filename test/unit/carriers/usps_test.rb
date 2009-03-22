@@ -37,8 +37,8 @@ class USPSTest < Test::Unit::TestCase
     end
     
     
-    expected_xml_hash = Hash.from_xml(fixture_xml)
-    actual_xml_hash = Hash.from_xml(response.xml)
+    expected_xml_hash = ActiveMerchant.parse_xml(fixture_xml)
+    actual_xml_hash = ActiveMerchant.parse_xml(response.xml)
     
     assert_equal expected_xml_hash, actual_xml_hash
     

@@ -23,6 +23,7 @@ Active Shipping is currently being used and improved in a production environment
 * [active_support](http://github.com/rails/rails/tree/master/activesupport)
 * [xml_node](http://github.com/tobi/xml_node/) (right now a version of it is actually included in this library, so you don't need to worry about it yet)
 * [mocha](http://mocha.rubyforge.org/) for the tests
+* [money](http://dist.leetsoft.com/api/money/) for the UPS Time in Transit service
 
 ## Download & Installation
 
@@ -167,6 +168,7 @@ The nicest way to submit changes would be to set up a GitHub account and fork th
 * Tobias Luetke (<http://blog.leetsoft.com>)
 * Cody Fauser (<http://codyfauser.com>)
 * Jimmy Baker (<http://jimmyville.com/>)
+* John Douthat (<http://github.com/johndouthat>)
 
 ## Legal Mumbo Jumbo
 

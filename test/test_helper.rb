@@ -169,7 +169,19 @@ module ActiveMerchant
                                       :state => 'NY',
                                       :address1 => '780 3rd Avenue',
                                       :address2 => 'Suite  2601',
-                                      :zip => '10017')
+                                      :zip => '10017'),
+        :prague_example => Location.new(
+                                      :address_type => 'commercial',
+                                      :country => 'CZ',
+                                      :city => 'PRAGUE',
+                                      :province => 'PRAGUE',
+                                      :postal_code => '18600'),
+        :roswell_example => Location.new(
+                                      :country => 'US',
+                                      :address_type => 'commercial',
+                                      :city => 'Roswell',
+                                      :state => 'GA',
+                                      :zip => '30076'),
                                       
       }
       

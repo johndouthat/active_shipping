@@ -166,7 +166,7 @@ module ActiveMerchant
         success, message = nil
         entries = []
         
-        xml_hash = Hash.from_xml(response)['FDXRateAvailableServicesReply']
+        xml_hash = ActiveMerchant.parse_xml(response)['FDXRateAvailableServicesReply']
         success = response_hash_success?(xml_hash)
         message = response_hash_message(xml_hash)
         if success
@@ -187,7 +187,7 @@ module ActiveMerchant
       end
       
       def parse_tracking_response(response, options)
-        xml_hash = Hash.from_xml(response)['FDXTrackReply']
+        xml_hash = ActiveMerchant.parse_xml(response)['FDXTrackReply']
         success = response_hash_success?(xml_hash)
         message = response_hash_message(xml_hash)
         
