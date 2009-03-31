@@ -74,7 +74,7 @@ module ActiveMerchant
           end
           
         end
-        TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
+        TrackingResponse.new(success, message, ActiveMerchant.parse_xml(response).values.first,
           :xml => response,
           :request => last_request,
           :shipment_events => shipment_events,

@@ -169,7 +169,7 @@ module ActiveMerchant
                                 :packages => packages)
           end
         end
-        RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
+        RateResponse.new(success, message, ActiveMerchant.parse_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
       end
       
       def service_name_for(origin, code)

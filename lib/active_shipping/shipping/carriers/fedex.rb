@@ -186,11 +186,10 @@ module ActiveMerchant
           message = "No shipping rates could be found for the destination address" if message.blank?
         end        
 
-        RateResponse.new(success, message, Hash.from_xml(response), :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
+        RateResponse.new(success, message, ActiveMerchant.parse_xml(response), :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
       end
       
       def parse_tracking_response(response, options)
-        xml_hash = Hash.from_xml(response)['FDXTrackReply']
         xml = REXML::Document.new(response)
         root_node = xml.elements['FDXTrackReply']
         
@@ -234,7 +233,7 @@ module ActiveMerchant
           shipment_events = shipment_events.sort_by(&:time)
         end
         
-        TrackingResponse.new(success, message, Hash.from_xml(response),
+        TrackingResponse.new(success, message, ActiveMerchant.parse_xml(response),
           :xml => response,
           :request => last_request,
           :shipment_events => shipment_events,
