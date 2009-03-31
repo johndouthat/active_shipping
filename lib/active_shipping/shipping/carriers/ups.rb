@@ -11,10 +11,10 @@ module ActiveMerchant
       LIVE_URL = 'https://www.ups.com'
       
       RESOURCES = {
-        :rates => '/ups.app/xml/Rate',
-        :track => '/ups.app/xml/Track',
-        :time_in_transit => '/ups.app/xml/TimeInTransit',
-        :address_validation => '/ups.app/xml/AV',
+        :rates => 'ups.app/xml/Rate',
+        :track => 'ups.app/xml/Track',
+        :time_in_transit => 'ups.app/xml/TimeInTransit',
+        :address_validation => 'ups.app/xml/AV',
       }
       
       def requirements
