@@ -67,23 +67,24 @@ module ActiveMerchant
       end
       
       def parse_av_response(response)
-        xml_hash = ActiveMerchant.parse_xml(response)['AddressValidationResponse']
-        success = response_hash_success?(xml_hash)
+        xml = REXML::Document.new(response)
+        root_node = xml.elements['AddressValidationResponse']
+        success = response_success?(xml)
         
         unless success
-          raise ActiveMerchantError, response_hash_message(xml_hash)
+          raise ActiveMerchantError, response_message(response_message(xml))
           #TODO: conform to the others
         end
         
         results = []
-        for x_result in ary(xml_hash['AddressValidationResult'])
+        for x_result in root_node.get_elements('AddressValidationResult')
           results << ValidatedAddress.new(
-            x_result['Rank'].to_i,
-            x_result['Quality'].to_f,
-            x_result['Address']['City'],
-            x_result['Address']['StateProvinceCode'],
-            x_result['PostalCodeLowEnd'],
-            x_result['PostalCodeHighEnd']
+            x_result.get_text('Rank').to_s.to_i,
+            x_result.get_text('Quality').to_s.to_f,
+            x_result.get_text('Address/City').to_s,
+            x_result.get_text('Address/StateProvinceCode').to_s,
+            x_result.get_text('PostalCodeLowEnd').to_s,
+            x_result.get_text('PostalCodeHighEnd').to_s
           )
         end
         results

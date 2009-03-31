@@ -99,6 +99,7 @@ module ActiveMerchant
             #                   * Shipment/DocumentsOnly element                      
             
             packages.each do |package|
+              debugger if package.nil?
               
               
               imperial = ['US','LR','MM'].include?(origin.country_code(:alpha2))
@@ -150,26 +151,25 @@ module ActiveMerchant
       
       def parse_rate_response(origin, destination, packages, response, options={})
         rates = []
-
-        xml_hash = ActiveMerchant.parse_xml(response)['RatingServiceSelectionResponse']
-        success = response_hash_success?(xml_hash)
-        message = response_hash_message(xml_hash)
+        
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
         
         if success
           rate_estimates = []
           
-          xml_hash['RatedShipment'] = [xml_hash['RatedShipment']] unless xml_hash['RatedShipment'].is_a? Array
-          xml_hash['RatedShipment'].each do |rated_shipment|
-            service_code = rated_shipment['Service']['Code']
+          xml.elements.each('/*/RatedShipment') do |rated_shipment|
+            service_code = rated_shipment.get_text('Service/Code').to_s
             rate_estimates << RateEstimate.new(origin, destination, @@name,
                                 service_name_for(origin, service_code),
-                                :total_price => rated_shipment['TotalCharges']['MonetaryValue'].to_f,
-                                :currency => rated_shipment['TotalCharges']['CurrencyCode'],
+                                :total_price => rated_shipment.get_text('TotalCharges/MonetaryValue').to_s.to_f,
+                                :currency => rated_shipment.get_text('TotalCharges/CurrencyCode').to_s,
                                 :service_code => service_code,
                                 :packages => packages)
           end
         end
-        RateResponse.new(success, message, xml_hash, :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
+        RateResponse.new(success, message, Hash.from_xml(response).values.first, :rates => rate_estimates, :xml => response, :request => last_request, :log_xml => options[:log_xml])
       end
       
       def service_name_for(origin, code)

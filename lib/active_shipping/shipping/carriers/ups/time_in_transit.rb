@@ -96,49 +96,45 @@ module ActiveMerchant
       
       # Summary of document format: Pages 28-30 of TNT_DeveloperGuide_12_20_07.pdf
       def parse_time_in_transit_response(response)
-        xml_hash = ActiveMerchant.parse_xml(response)['TimeInTransitResponse']
-        success = response_hash_success?(xml_hash)
+        xml = REXML::Document.new(response).elements['TimeInTransitResponse']
+        
+        success = response_success?(xml)
         
         unless success
-          raise ActiveMerchantError, response_hash_message(xml_hash)
+          raise ActiveMerchantError, response_message(xml)
           #TODO: conform to the others
         end
         
-        x_transit_response =  xml_hash['TransitResponse']
+        x_transit_response =  xml.elements['TransitResponse']
         
         # TODO: pretty much everything except the most common use-case. 
         # There's lots of cool stuff in there, like # of holidays and number of days in customs
-        result = TimeInTransitResult.new(x_transit_response['Disclaimer'])
+        result = TimeInTransitResult.new(x_transit_response.get_text('Disclaimer').to_s)
         
-        if x_service_summary = x_transit_response['ServiceSummary']
-          for x_summary in Array(x_service_summary) #TODO: test this
-            x_service = x_summary['Service']
-            service_code = x_service['Code']
-            service_name = x_service['Description']
+        for x_summary in x_transit_response.get_elements('ServiceSummary')
+          # The DeveloperGuide says that code should be "1" or "0".
+          # However, the examples and the InterfaceSpecification use 'Y' and 'N', 
+          # so we check for both
+          guaranteed = ['1', 'Y'].include?(x_summary.get_text('Guaranteed/Code').to_s)
+          s_date = x_summary.get_text('EstimatedArrival/Date').to_s
+          s_time = x_summary.get_text('EstimatedArrival/Time').to_s
+          time = Time.parse("#{s_date} #{s_time}") #TODO: take time-zones into account?
 
-            x_guaranteed = x_summary['Guaranteed']
-            # The DeveloperGuide says that code should be "1" or "0".
-            # However, the examples and the InterfaceSpecification use 'Y' and 'N', 
-            # so we check for both
-            guaranteed = ['1', 'Y'].include?(x_guaranteed['Code'])
-            description = x_guaranteed['Description']
-
-            x_arrival = x_summary['EstimatedArrival']
-            s_date = x_arrival['Date']
-            s_time = x_arrival['Time']
-            days = x_arrival['BusinessTransitDays'].to_i
-
-            time = Time.parse("#{s_date} #{s_time}") #TODO: take time-zones into account?
-
-            result.services << TimeInTransitService.new(service_code, service_name, time, days, guaranteed, description)
-          end 
-        end
+          result.services << TimeInTransitService.new(
+            x_summary.get_text('Service/Code').to_s,
+            x_summary.get_text('Service/Description').to_s,
+            time,
+            x_summary.get_text('EstimatedArrival/TotalTransitDays').to_s.to_i, 
+            guaranteed,
+            x_summary.get_text('Guaranteed/Description').to_s
+          )
+        end 
         
-        if x_from_list = x_transit_response['TransitFromList']
+        if x_from_list = x_transit_response.elements['TransitFromList']
           result.origin_candidates = build_candidate_list(x_from_list)
         end
         
-        if x_to_list = x_transit_response['TransitToList']
+        if x_to_list = x_transit_response.elements['TransitToList']
           result.destination_candidates = build_candidate_list(x_to_list)
         end
         
@@ -147,18 +143,18 @@ module ActiveMerchant
       
       def build_candidate_list(x_list)
         result = []
-        for x_candidate in Array(x_list['Candidate']) #TODO: test this
-          x_artifact = x_candidate['AddressArtifactFormat']
+        for x_candidate in x_list.get_elements('Candidate')
+          x_artifact = x_candidate.elements['AddressArtifactFormat']
           result << AddressCandidate.new(
-            x_artifact['PoliticalDivision1'],
-            x_artifact['PoliticalDivision2'],
-            x_artifact['PoliticalDivision3'],
-            x_artifact['PostcodePrimaryLow'],
-            x_artifact['PostcodePrimaryHigh'],
-            x_artifact['PostcodeExtendedLow'],
-            x_artifact['PostcodeExtendedHigh'],
-            x_artifact['Country'],
-            x_artifact['CountryCode']
+            x_artifact.get_text('PoliticalDivision1').to_s,
+            x_artifact.get_text('PoliticalDivision2').to_s,
+            x_artifact.get_text('PoliticalDivision3').to_s,
+            x_artifact.get_text('PostcodePrimaryLow').to_s,
+            x_artifact.get_text('PostcodePrimaryHigh').to_s,
+            x_artifact.get_text('PostcodeExtendedLow').to_s,
+            x_artifact.get_text('PostcodeExtendedHigh').to_s,
+            x_artifact.get_text('Country').to_s,
+            x_artifact.get_text('CountryCode').to_s
           )
         end
         result

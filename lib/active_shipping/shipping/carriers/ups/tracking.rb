@@ -24,57 +24,34 @@ module ActiveMerchant
       end
       
       def parse_tracking_response(response, options={})
-        xml_hash = ActiveMerchant.parse_xml(response)['TrackResponse']
-        success = response_hash_success?(xml_hash)
-        message = response_hash_message(xml_hash)
-        
+        xml = REXML::Document.new(response)
+        success = response_success?(xml)
+        message = response_message(xml)
         
         if success
           tracking_number, origin, destination = nil
           shipment_events = []
           
-          first_shipment = first_or_only(xml_hash['Shipment'])
-          first_package = first_or_only(first_shipment['Package'])
-          tracking_number = first_shipment['ShipmentIdentificationNumber'] || first_package['TrackingNumber']
+          first_shipment = xml.elements['/*/Shipment']
+          first_package = first_shipment.elements['Package']
+          tracking_number = first_shipment.get_text('ShipmentIdentificationNumber | Package/TrackingNumber').to_s
+          
           origin, destination = %w{Shipper ShipTo}.map do |location|
-            location_hash = first_shipment[location]
-            if location_hash && (address_hash = location_hash['Address'])
-              Location.new(
-                :country =>     address_hash['CountryCode'],
-                :postal_code => address_hash['PostalCode'],
-                :province =>    address_hash['StateProvinceCode'],
-                :city =>        address_hash['City'],
-                :address1 =>    address_hash['AddressLine1'],
-                :address2 =>    address_hash['AddressLine2'],
-                :address3 =>    address_hash['AddressLine3']
-              )
-            else
-              nil
-            end
+            location_from_address_node(first_shipment.elements["#{location}/Address"])
           end
           
-          activities = force_array(first_package['Activity'])
+          activities = first_package.get_elements('Activity')
           unless activities.empty?
             shipment_events = activities.map do |activity|
-              address = activity['ActivityLocation']['Address']
-              location = Location.new(
-                :address1 => address['AddressLine1'],
-                :address2 => address['AddressLine2'],
-                :address3 => address['AddressLine3'],
-                :city => address['City'],
-                :state => address['StateProvinceCode'],
-                :postal_code => address['PostalCode'],
-                :country => address['CountryCode'])
-              status = activity['Status']
-              status_type = status['StatusType'] if status
-              description = status_type['Description'] if status_type
-            
-              # for now, just assume UTC, even though it probably isn't
-              zoneless_time = if activity['Time'] and activity['Date']
-                hour, minute, second = activity['Time'].scan(/\d{2}/)
-                year, month, day = activity['Date'][0..3], activity['Date'][4..5], activity['Date'][6..7]
-                Time.utc(year , month, day, hour, minute, second)
+              description = activity.get_text('Status/StatusType/Description').to_s
+              zoneless_time = if (time = activity.get_text('Time')) &&
+                                 (date = activity.get_text('Date'))
+                time, date = time.to_s, date.to_s
+                hour, minute, second = time.scan(/\d{2}/)
+                year, month, day = date[0..3], date[4..5], date[6..7]
+                Time.utc(year, month, day, hour, minute, second)
               end
+              location = location_from_address_node(activity.elements['ActivityLocation/Address'])
               ShipmentEvent.new(description, zoneless_time, location)
             end
             
@@ -95,15 +72,28 @@ module ActiveMerchant
               shipment_events[-1] = ShipmentEvent.new(shipment_events.last.name, shipment_events.last.time, destination)
             end
           end
+          
         end
-        
-        TrackingResponse.new(success, message, xml_hash,
+        TrackingResponse.new(success, message, Hash.from_xml(response).values.first,
           :xml => response,
           :request => last_request,
           :shipment_events => shipment_events,
           :origin => origin,
           :destination => destination,
           :tracking_number => tracking_number)
+      end
+      
+      def location_from_address_node(address)
+        return nil unless address
+        Location.new(
+                :country =>     node_text_or_nil(address.elements['CountryCode']),
+                :postal_code => node_text_or_nil(address.elements['PostalCode']),
+                :province =>    node_text_or_nil(address.elements['StateProvinceCode']),
+                :city =>        node_text_or_nil(address.elements['City']),
+                :address1 =>    node_text_or_nil(address.elements['AddressLine1']),
+                :address2 =>    node_text_or_nil(address.elements['AddressLine2']),
+                :address3 =>    node_text_or_nil(address.elements['AddressLine3'])
+              )
       end
       
       def first_or_only(xml_hash)

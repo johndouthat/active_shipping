@@ -31,14 +31,12 @@ module ActiveMerchant
         xml_request.to_xml
       end
       
-      def response_hash_success?(xml_hash)
-        xml_hash['Response']['ResponseStatusCode'] == '1'
+      def response_success?(xml)
+        xml.get_text('/*/Response/ResponseStatusCode').to_s == '1'
       end
       
-      def response_hash_message(xml_hash)
-        response_hash_success?(xml_hash) ?
-          xml_hash['Response']['ResponseStatusDescription'] :
-          xml_hash['Response']['Error']['ErrorDescription']
+      def response_message(xml)
+        xml.get_text('/*/Response/ResponseStatusDescription | /*/Response/Error/ErrorDescription').to_s
       end
       
       def commit(action, request, test = false)
