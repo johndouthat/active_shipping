@@ -48,6 +48,8 @@ module ActiveMerchant
         "07" => "UPS Express",
         "08" => "UPS Expedited"
       }
+
+      US_TERRITORIES_TREATED_AS_COUNTRIES = ["AS", "FM", "GU", "MH", "MP", "PW", "PR", "VI"]
       
       OTHER_NON_US_ORIGIN_SERVICES = {
         "07" => "UPS Express"
@@ -57,6 +59,7 @@ module ActiveMerchant
       EU_COUNTRY_CODES = ["GB", "AT", "BE", "BG", "CY", "CZ", "DK", "EE", "FI", "FR", "DE", "GR", "HU", "IE", "IT", "LV", "LT", "LU", "MT", "NL", "PL", "PT", "RO", "SK", "SI", "ES", "SE"]
       
       def find_rates(origin, destination, packages, options={})
+        origin, destination = upsified_location(origin), upsified_location(destination)
         options = @options.merge(options)
         packages = Array(packages)
         access_request = build_access_request
@@ -64,7 +67,7 @@ module ActiveMerchant
         response = commit(:rates, save_request(access_request + rate_request), (options[:test] || false))
         parse_rate_response(origin, destination, packages, response, options)
       end
-      
+            
       protected
       
       def build_rate_request(origin, destination, packages, options={})

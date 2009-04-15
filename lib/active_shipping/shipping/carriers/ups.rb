@@ -22,6 +22,19 @@ module ActiveMerchant
       end
       
       protected
+      
+      def upsified_location(location)
+        if location.country_code == 'US' && US_TERRITORIES_TREATED_AS_COUNTRIES.include?(location.state)
+          atts = {:country => location.state}
+          [:zip, :city, :address1, :address2, :address3, :phone, :fax, :address_type].each do |att|
+            atts[att] = location.send(att)
+          end
+          Location.new(atts)
+        else
+          location
+        end
+      end
+      
       def build_access_request
         xml_request = XmlNode.new('AccessRequest') do |access_request|
           access_request << XmlNode.new('AccessLicenseNumber', @options[:key])
