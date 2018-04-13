@@ -19,6 +19,7 @@ This library interfaces with the web services of various shipping carriers. The 
 * [Stamps](http://www.stamps.com)
 * [Kunaki](http://www.kunaki.com)
 * [Australia Post](http://auspost.com.au/)
+* [Correios](http://www.correios.com.br/correios/english)
 
 
 ## Versions
@@ -172,4 +173,3 @@ When opening a pull request, include description of the feature, why it exists, 
 3. Commit your changes (`git commit -am 'Add some feature'`)
 4. Push to the branch (`git push origin my-new-feature`)
 5. Create a new Pull Request
-
